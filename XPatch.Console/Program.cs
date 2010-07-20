@@ -12,7 +12,7 @@ namespace XPatch.Console
     {
         static void Main(string[] args)
         {
-            args = new string[] { @"..\..\test.xml", "xml/@attribut" /*, "wert2"*/};
+            // args = new string[] { @"..\..\test.xml", "xml/@attribut" /*, "wert2"*/};
             
             var xml = new XmlDocument();
             xml.Load(args[0]);
