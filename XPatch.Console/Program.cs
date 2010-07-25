@@ -1,9 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿
+using System;
 using System.IO;
-using System.Linq;
-using System.Xml;
-using C = System.Console;
 
 namespace XPatch.Console
 {
@@ -11,90 +8,48 @@ namespace XPatch.Console
     {
         private static void Main(string[] args)
         {
-#if (DEBUG)
-            if (Debugger.IsAttached)
-                args = new string[]
-                           {
-                               @"..\..\test.xml",
-                               "xml/@attribut",
-                               "wert2"
-                           };
-#endif
-            if (args.Contains("-nologo"))
-            {
-                // Parameter "verbrauchen"
-                args = args.Except(new[] { "-nologo" }).ToArray();
-            }
-            else
-            {
-                C.WriteLine("xpatch 0.2 - Ersetzt einzelne Werte in Xml-Dateien");
-                C.WriteLine("Copyright (C) Lars Corneliussen 2010");
-                C.WriteLine();
-            }
+            var source = new XmlFileSource();
+            var console = new SystemConsole();
 
-            string help = "Benutzung: xpatch xmlDatei xpath-Ausdruck [neuerWert]"
-                          + "\n\nWird neuerWert nicht angegeben, fordert xpatch zur "
-                          + "Eingabe des gewünschten Wertes auf.";
+            var patcher = new XmlXPathPatcher(source, console);
+            var runner = new XPatchRunner(console, patcher);
 
-            // Parameter überprüfen
-            if (args.Length == 0)
-            {
-                // Hilfe als Fehlerausgabe
-                C.Error.WriteLine(help);
-                Environment.Exit(-1);
-            }
-            else if (args.Length == 1 && args[0] == "-?")
-            {
-                // Hilfe als Programmausgabe
-                C.WriteLine(help);
-                Environment.Exit(0);
-            }
-            if (args.Length < 2 || args.Length > 3)
-            {
-                // Hilfe als Fehlerausgabe
-                C.Error.WriteLine("Ungültige Parameter! 'xpatch -?' zeigt die Hilfe an.");
-                Environment.Exit(-1);
-            }
+            var options = new XPatchOptionsParser().Parse(args);
 
-            string xmlFile = args[0];
-            string xpath = args[1];
-            var newValue = args.Length > 2 ? args[2] : null;
+            bool success = runner.Run(options);
+            Environment.Exit(success ? 0 : -1);
+        }
+    }
 
-            if (!File.Exists(xmlFile))
-            {
-                C.Error.WriteLine("Die Datei '{0}' existiert nicht.", xmlFile);
-                Environment.Exit(-1);
-            }
+    public class SystemConsole : IConsole
+    {
+        public string Prompt(string message)
+        {
+            System.Console.Write(message);
+            return System.Console.ReadLine();
+        }
 
-            try
-            {
-                var xml = new XmlDocument();
-                xml.Load(xmlFile);
+        public void Error(string errorMessage)
+        {
+            System.Console.Error.WriteLine(errorMessage);
+        }
 
-                if (newValue == null)
-                {
-                    C.Write("Please enter the new value for '{0}': ", xpath);
-                    newValue = System.Console.ReadLine();
-                }
+        public void Info(string message)
+        {
+            System.Console.WriteLine(message);
+        }
+    }
 
-                XmlNode element = xml.SelectSingleNode(xpath);
-                var oldValue = element.InnerText;
-                element.InnerText = newValue;
+    public class XmlFileSource : IXmlFileSource
+    {
+        public string Load(string fileName)
+        {
+            return File.ReadAllText(fileName);
+        }
 
-                xml.Save(xmlFile);
-                C.Write("Value for '{0}' changed from '{1}' to '{2}'.",
-                        xpath, oldValue, newValue);
-            }
-            catch (Exception e)
-            {
-                C.Error.WriteLine("Bei der Ausführung von xpatch ist ein Fehler aufgetreten: {0}\n", e.Message);
-                Environment.Exit(-1);
-            }
-
-#if (DEBUG)
-            if (Debugger.IsAttached)
-                C.ReadLine();
-#endif
+        public void Save(string fileName, string contents)
+        {
+            File.WriteAllText(fileName, contents);
         }
     }
 }
