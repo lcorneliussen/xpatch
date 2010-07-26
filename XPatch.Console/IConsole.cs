@@ -4,6 +4,6 @@
     {
         string Prompt(string message);
         void Error(string errorMessage);
-        void Info(string message);
+        void Write(string message);
     }
 }

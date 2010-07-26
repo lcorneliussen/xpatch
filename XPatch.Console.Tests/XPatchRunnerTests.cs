@@ -23,7 +23,7 @@ namespace XPatch.Console.Tests
             _options = new XPatchOptions();
             _runner = new XPatchRunner(_console.Object, _patcher.Object);
 
-            _console.Setup(c => c.Info(It.IsAny<string>()))
+            _console.Setup(c => c.Write(It.IsAny<string>()))
                 .Callback<string>(s => _infoLog += s);
 
             _console.Setup(c => c.Error(It.IsAny<string>()))
@@ -58,8 +58,8 @@ namespace XPatch.Console.Tests
 
             _runner.Run(_options).Should().Be.True();
 
-            _infoLog.Should().Contain("xpatch 0.3")
-                .And.Contain("Copyright (C)");
+            _infoLog.Should().Match("XPatch \\d\\.\\d")
+                .And.Contain("Copyright");
         }
 
         [TestMethod]

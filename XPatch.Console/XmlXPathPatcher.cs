@@ -1,16 +1,16 @@
 ﻿using System.Xml;
+using log4net;
 
 namespace XPatch.Console
 {
     public class XmlXPathPatcher : IXmlXPathPatcher
     {
+        private ILog _log = LogManager.GetLogger(typeof(XmlXPathPatcher));
         private readonly IXmlFileSource _xmlFileSource;
-        private readonly IConsole _console;
 
-        public XmlXPathPatcher(IXmlFileSource xmlFileSource, IConsole console)
+        public XmlXPathPatcher(IXmlFileSource xmlFileSource)
         {
             _xmlFileSource = xmlFileSource;
-            _console = console;
         }
 
         public void Patch(string xmlFile, string xpathExpression, string newValue)
@@ -26,9 +26,8 @@ namespace XPatch.Console
 
             _xmlFileSource.Save(xmlFile, xml.OuterXml);
 
-            _console.Info(
-                string.Format("Wert für '{0}' wurde von '{1}' auf '{2}' geändert.",
-                                xpathExpression, oldValue, newValue));
+            _log.InfoFormat("Wert für '{0}' wurde von '{1}' auf '{2}' geändert.",
+                                xpathExpression, oldValue, newValue);
         }
     }
 }

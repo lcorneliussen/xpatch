@@ -1,21 +1,43 @@
-﻿namespace XPatch.Console
+﻿using System.Collections.Generic;
+using CommandLine;
+using CommandLine.Text;
+
+namespace XPatch.Console
 {
+    public enum XPatchLogLevel { Verbose, Info, Error, Off }
     public class XPatchOptions
     {
-        public bool NoLogo { get; set; }
-        public bool Invalid { get; set; }
+        public bool Invalid;
 
-        public bool ShowHelp { get; set; }
+        [Option("n", "nologo",
+            HelpText = "Unterbindet die Anzeige der Programminformation")]
+        public bool NoLogo;
 
-        public string XmlFile { get; set; }
-        public string XPathExpression { get; set; }
-        public string NewValue { get; set; }
+        [Option("l", "loglevel",
+            HelpText = "Gibt an, wie geschwätzig die Ausgabe sein soll."
+                        + " Default: Info, alternativ: Verbose, Error oder Off")]
+        public XPatchLogLevel LogLevel = XPatchLogLevel.Info;
+
+        [Option("?", "help", HelpText = "Zeigt die Programmhilfe an")]
+        public bool ShowHelp;
+
+        // Catch all...
+        [ValueList(typeof(List<string>), MaximumElements = 3)]
+        public IList<string> Values;
+
+        // Werden programmatisch aus Values befüllt
+        public string XmlFile;
+        public string XPathExpression;
+        public string NewValue;
 
         public string GetHelp()
         {
-            return "Benutzung: xpatch xmlDatei xpath-Ausdruck [neuerWert] [-nologo]"
-                    + "\n\nWird neuerWert nicht angegeben, fordert xpatch zur "
-                    + "Eingabe des gewünschten Wertes auf.";
+            var help = new HelpText("  Benutzung: xpatch xmlDatei xpath-Ausdruck [neuerwert] [parameter]"
+                                    + "\n\nWird kein neuer Wert angegeben, fordert xpatch zur "
+                                    + "Eingabe des gewünschten Wertes auf."
+                                    + "\n\nWeitere Parameter:");
+            help.AddOptions(this);
+            return help;
         }
     }
 }

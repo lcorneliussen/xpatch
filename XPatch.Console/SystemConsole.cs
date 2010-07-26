@@ -1,4 +1,5 @@
-﻿namespace XPatch.Console
+﻿
+namespace XPatch.Console
 {
     public class SystemConsole : IConsole
     {
@@ -13,7 +14,7 @@
             System.Console.Error.WriteLine(errorMessage);
         }
 
-        public void Info(string message)
+        public void Write(string message)
         {
             System.Console.WriteLine(message);
         }

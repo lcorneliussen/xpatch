@@ -29,7 +29,7 @@ namespace XPatch.Console.Tests
         [TestMethod]
         public void NoLogo_IsSet()
         {
-            _parser.Parse("-nologo").NoLogo.Should().Be.True();
+            _parser.Parse("--nologo").NoLogo.Should().Be.True();
         }
 
         [TestMethod]

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using CommandLine;
 
 namespace XPatch.Console
 {
@@ -7,30 +8,22 @@ namespace XPatch.Console
         public XPatchOptions Parse(params string[] args)
         {
             var options = new XPatchOptions();
+            var commandLineParser = new CommandLineParser();
 
-            if (args.Contains("-nologo"))
+            var helpWriter = new StringWriter();
+            if (commandLineParser.ParseArguments(args, options, helpWriter)
+                && options.Values.Count >= 2)
             {
-                args = args.Except(new[] { "-nologo" }).ToArray();
-                options.NoLogo = true;
-            }
+                options.XmlFile = options.Values[0];
+                options.XPathExpression = options.Values[1];
 
-            if (args.Contains("-?"))
-            {
-                options.ShowHelp = true;
-                return options;
+                if (options.Values.Count == 3)
+                    options.NewValue = options.Values[2];
             }
-
-            if (args.Length < 2 || args.Length > 3)
+            else
             {
                 options.Invalid = true;
-                return options;
             }
-
-            options.XmlFile = args[0];
-            options.XPathExpression = args[1];
-
-            if (args.Length == 3)
-                options.NewValue = args[2];
 
             return options;
         }
